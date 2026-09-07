@@ -23,9 +23,6 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-import { sbtetService } from "./sbtetService.js";
-
-
 /* ==========================================================================
    State Management
    ========================================================================== */
@@ -35,7 +32,6 @@ const state = {
   studentProfile: null,
   activeTab: "tab-overview"
 };
-
 
 /* ==========================================================================
    DOM Elements Cache
@@ -118,7 +114,6 @@ const DOM = {
   btnSidebarLogout: document.getElementById("btn-sidebar-logout")
 };
 
-
 /* ==========================================================================
    Safe DOM Helpers
    ========================================================================== */
@@ -150,7 +145,6 @@ function addClickListener(element, callback, elementName = "unknown-element") {
     console.warn(`Missing clickable DOM element: ${elementName}`);
   }
 }
-
 
 /* ==========================================================================
    UI Helpers
@@ -204,7 +198,6 @@ function escapeHTML(str) {
   });
 }
 
-
 /* ==========================================================================
    Screen Management
    ========================================================================== */
@@ -240,7 +233,6 @@ function showLoader(statusMessage = "Loading SBTET Connect...") {
   }
 }
 
-
 /* ==========================================================================
    Validation
    ========================================================================== */
@@ -269,17 +261,10 @@ function validatePIN(pin) {
   };
 }
 
-
 /* ==========================================================================
-   OPTION 1: SBTET Connect Launcher with URL Query Parameter Prefill
+   SBTET Connect Direct Launcher (Option 1)
    ========================================================================== */
 
-/**
- * Launches https://sbtetconnect.app with the PIN pre-passed in the query parameter.
- * Also copies the PIN to the clipboard as a fallback so the student can paste instantly.
- * 
- * @param {string} route - Optional sub-action ('results' | 'attendance' | 'exams' | 'home')
- */
 export async function openSBTETConnect(route = "home") {
   const pin = state.studentProfile?.pin;
 
@@ -288,7 +273,7 @@ export async function openSBTETConnect(route = "home") {
     return;
   }
 
-  // 1. Copy PIN to clipboard automatically as a seamless backup
+  // Copy PIN to clipboard automatically as a 1-tap backup
   try {
     if (navigator.clipboard && window.isSecureContext) {
       await navigator.clipboard.writeText(pin);
@@ -306,7 +291,6 @@ export async function openSBTETConnect(route = "home") {
     console.warn("Clipboard copy could not be completed automatically:", clipboardErr);
   }
 
-  // 2. Build URL with query parameters according to Option 1
   const encodedPin = encodeURIComponent(pin);
   let targetUrl = `https://sbtetconnect.app/?pin=${encodedPin}`;
 
@@ -318,14 +302,12 @@ export async function openSBTETConnect(route = "home") {
     targetUrl = `https://sbtetconnect.app/exams?pin=${encodedPin}`;
   }
 
-  showToast(`Opening SBTET Connect with PIN: ${pin}`, "info", 2600);
+  showToast(`Opening SBTET Connect with PIN: ${pin}`, "info", 2400);
 
-  // 3. Launch external site in a separate browser tab
   setTimeout(() => {
     window.open(targetUrl, "_blank", "noopener,noreferrer");
-  }, 350);
+  }, 250);
 }
-
 
 /* ==========================================================================
    Google Authentication
@@ -368,7 +350,6 @@ addClickListener(
   "btn-google-login"
 );
 
-
 /* ==========================================================================
    Sign Out
    ========================================================================== */
@@ -391,7 +372,6 @@ async function handleSignOut() {
 
 addClickListener(DOM.btnProfileLogout, handleSignOut, "btn-profile-logout");
 addClickListener(DOM.btnSidebarLogout, handleSignOut, "btn-sidebar-logout");
-
 
 /* ==========================================================================
    Authentication State Listener
@@ -441,10 +421,9 @@ onAuthStateChanged(auth, async (user) => {
       try {
         populateDashboardUI(state.studentProfile, user);
         setScreen("dashboard");
-        loadAcademicTab("tab-overview");
+        switchTab("tab-overview");
       } catch (uiError) {
         console.error("Dashboard UI Error:", uiError);
-        showToast(`Profile loaded with rendering warning: ${uiError.message}`, "error");
         setScreen("dashboard");
       }
     } else {
@@ -469,7 +448,6 @@ onAuthStateChanged(auth, async (user) => {
   }
 });
 
-
 /* ==========================================================================
    Profile Setup
    ========================================================================== */
@@ -482,7 +460,6 @@ function prepareProfileSetupForm(user) {
   setText(DOM.setupEmail, user?.email || "No Email Provided");
   setValue(DOM.setupName, user?.displayName || "");
 }
-
 
 /* ==========================================================================
    Create Student Profile
@@ -595,7 +572,7 @@ if (DOM.formSetup) {
     try {
       populateDashboardUI(profilePayload, user);
       setScreen("dashboard");
-      loadAcademicTab("tab-overview");
+      switchTab("tab-overview");
     } catch (uiError) {
       console.error("Dashboard UI Error after save:", uiError);
       setScreen("dashboard");
@@ -606,7 +583,6 @@ if (DOM.formSetup) {
     if (DOM.btnSaveProfile) DOM.btnSaveProfile.disabled = false;
   });
 }
-
 
 /* ==========================================================================
    Dashboard Hydration & Render Engine
@@ -650,7 +626,6 @@ function populateDashboardUI(profile, user) {
   setValue(DOM.editAcademicYear, profile.academicYear);
   setValue(DOM.editCurrentYear, profile.currentYear);
 }
-
 
 /* ==========================================================================
    Edit Profile Handler
@@ -729,12 +704,44 @@ if (DOM.formProfileEdit) {
   });
 }
 
+/* ==========================================================================
+   Direct Action Handler (Bypasses Local Tabs and Opens Official Portal)
+   ========================================================================== */
+
+function handleServiceAction(serviceKey) {
+  if (serviceKey === "tab-results" || serviceKey === "results") {
+    openSBTETConnect("results");
+    return true;
+  }
+  if (serviceKey === "tab-attendance" || serviceKey === "attendance") {
+    openSBTETConnect("attendance");
+    return true;
+  }
+  if (serviceKey === "tab-exams" || serviceKey === "exams") {
+    openSBTETConnect("exams");
+    return true;
+  }
+  if (serviceKey === "tab-marks" || serviceKey === "marks") {
+    openSBTETConnect("results");
+    return true;
+  }
+  if (serviceKey === "tab-timetable" || serviceKey === "timetable") {
+    openSBTETConnect("exams");
+    return true;
+  }
+  return false;
+}
 
 /* ==========================================================================
    Navigation & Tab Routing
    ========================================================================== */
 
 function switchTab(tabId) {
+  // If target is an official SBTET external service, launch directly without switching local view
+  if (handleServiceAction(tabId)) {
+    return;
+  }
+
   state.activeTab = tabId;
 
   document.querySelectorAll(".portal-tab").forEach(tab => tab.classList.remove("active"));
@@ -753,21 +760,23 @@ function switchTab(tabId) {
   if (bottomBtn) bottomBtn.classList.add("active");
 
   window.scrollTo({ top: 0, behavior: "smooth" });
-  loadAcademicTab(tabId);
+
+  if (tabId === "tab-notifications") {
+    renderNotifications();
+  }
 }
 
+// Sidebar Navigation
 document.querySelectorAll(".sidebar-nav .nav-item").forEach(btn => {
   btn.addEventListener("click", () => switchTab(btn.dataset.tab));
 });
 
+// Mobile Bottom Navigation
 document.querySelectorAll(".mobile-bottom-nav .bottom-nav-item").forEach(btn => {
   btn.addEventListener("click", () => switchTab(btn.dataset.tab));
 });
 
-/*
- * Overview Grid Cards:
- * Shows the tab while providing quick access to launch sbtetconnect.app with prefill
- */
+// Dashboard Grid Cards (Direct 1-Tap Trigger)
 document.querySelectorAll(".dash-card[data-open-tab]").forEach(card => {
   card.addEventListener("click", () => {
     switchTab(card.dataset.openTab);
@@ -777,473 +786,46 @@ document.querySelectorAll(".dash-card[data-open-tab]").forEach(card => {
 const headerProfileButton = document.getElementById("btn-header-profile");
 addClickListener(headerProfileButton, () => switchTab("tab-profile"), "btn-header-profile");
 
-
 /* ==========================================================================
-   Async Academic Services Renderer
+   Clean Information Renderer (No Demo Data)
    ========================================================================== */
 
-async function loadAcademicTab(tabId) {
-  const pin = state.studentProfile?.pin || "N/A";
-  const scheme = state.studentProfile?.scheme || "C24";
-  const branch = state.studentProfile?.branch || "ECE";
-
-  switch (tabId) {
-    case "tab-results":
-      if (!DOM.resultsContainer) break;
-      DOM.resultsContainer.innerHTML = createLoadingPlaceholder("Retrieving semester results...");
-      try {
-        const data = await sbtetService.getStudentResults(pin);
-        renderResults(data);
-      } catch (error) {
-        console.error("Results Error:", error);
-        renderError(DOM.resultsContainer, "Unable to load semester results.");
-      }
-      break;
-
-    case "tab-marks":
-      if (!DOM.marksContainer) break;
-      DOM.marksContainer.innerHTML = createLoadingPlaceholder("Calculating assessment marks...");
-      try {
-        const data = await sbtetService.getStudentMarks(pin);
-        renderMarks(data);
-      } catch (error) {
-        console.error("Marks Error:", error);
-        renderError(DOM.marksContainer, "Unable to load subject marks.");
-      }
-      break;
-
-    case "tab-attendance":
-      if (!DOM.attendanceContainer) break;
-      DOM.attendanceContainer.innerHTML = createLoadingPlaceholder("Syncing biometric attendance...");
-      try {
-        const data = await sbtetService.getAttendance(pin);
-        renderAttendance(data);
-      } catch (error) {
-        console.error("Attendance Error:", error);
-        renderError(DOM.attendanceContainer, "Unable to load attendance records.");
-      }
-      break;
-
-    case "tab-exams":
-      if (!DOM.examsContainer) break;
-      DOM.examsContainer.innerHTML = createLoadingPlaceholder("Checking examination records...");
-      try {
-        const data = await sbtetService.getExamDetails(pin);
-        renderExams(data);
-      } catch (error) {
-        console.error("Exam Error:", error);
-        renderError(DOM.examsContainer, "Unable to load examination details.");
-      }
-      break;
-
-    case "tab-timetable":
-      if (!DOM.timetableContainer) break;
-      DOM.timetableContainer.innerHTML = createLoadingPlaceholder("Fetching timetable schedule...");
-      try {
-        const data = await sbtetService.getTimeTable(scheme, branch);
-        renderTimetable(data);
-      } catch (error) {
-        console.error("Timetable Error:", error);
-        renderError(DOM.timetableContainer, "Unable to load timetable.");
-      }
-      break;
-
-    case "tab-notifications":
-      if (!DOM.notificationsContainer) break;
-      DOM.notificationsContainer.innerHTML = createLoadingPlaceholder("Checking circulars...");
-      try {
-        const notifications = await sbtetService.getNotifications();
-        renderNotifications(notifications);
-      } catch (error) {
-        console.error("Notification Error:", error);
-        renderError(DOM.notificationsContainer, "Unable to load notifications.");
-      }
-      break;
-
-    case "tab-overview":
-    case "tab-profile":
-    default:
-      break;
-  }
-}
-
-function createLoadingPlaceholder(message) {
-  return `
-    <div class="empty-state">
-      <div class="spinner"></div>
-      <p class="empty-desc">${escapeHTML(message)}</p>
-    </div>
-  `;
-}
-
-function renderError(container, message) {
-  if (!container) return;
-  container.innerHTML = `
-    <div class="empty-state">
-      <i class="fa-solid fa-triangle-exclamation empty-icon" style="color: var(--danger)"></i>
-      <h3 class="empty-title">Service Interruption</h3>
-      <p class="empty-desc">${escapeHTML(message)}</p>
-    </div>
-  `;
-}
-
-
-/* ==========================================================================
-   Results Renderer (with Option 1 External Prefill Button)
-   ========================================================================== */
-
-function renderResults(data) {
-  if (!DOM.resultsContainer) return;
-
-  const currentPin = state.studentProfile?.pin || data?.pin || "";
-
-  // Direct Option 1 External Launcher Toolbar
-  let html = `
-    <div class="data-card" style="margin-bottom: 16px; border-left: 4px solid var(--accent); background: #f0f9ff;">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-        <div>
-          <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--primary);">Live SBTET Connect Results</h4>
-          <p style="font-size: 0.78rem; color: var(--text-secondary);">Open official portal with PIN <strong>${escapeHTML(currentPin)}</strong> auto-queried</p>
-        </div>
-        <button id="btn-open-sbtet-results" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.82rem;">
-          <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Live Results
-        </button>
-      </div>
-    </div>
-    <div class="demo-data-badge">
-      <i class="fa-solid fa-flask"></i> Cached / Demo Preview
-    </div>
-  `;
-
-  if (!data || !data.semesters || data.semesters.length === 0) {
-    html += `
-      <div class="empty-state">
-        <i class="fa-solid fa-file-excel empty-icon"></i>
-        <h3 class="empty-title">No Cached Results</h3>
-        <p class="empty-desc">No academic semester results are stored locally for PIN ${escapeHTML(currentPin)}.</p>
-      </div>
-    `;
-    DOM.resultsContainer.innerHTML = html;
-    bindExternalButton("btn-open-sbtet-results", () => openSBTETConnect("results"));
-    return;
-  }
-
-  data.semesters.forEach(sem => {
-    html += `
-      <div class="data-card">
-        <div class="data-card-header">
-          <div>
-            <h3 class="data-card-title">${escapeHTML(sem.sem)}</h3>
-            <span class="field-help">${escapeHTML(sem.examPeriod)}</span>
-          </div>
-          <span class="status-badge ${sem.status === "PASSED" ? "pass" : "fail"}">
-            ${escapeHTML(sem.status)} (SGPA: ${escapeHTML(sem.gpa)})
-          </span>
-        </div>
-        <div class="responsive-table-wrapper">
-          <table class="sbtet-table">
-            <thead>
-              <tr>
-                <th>Code</th>
-                <th>Subject Name</th>
-                <th>Internal</th>
-                <th>External</th>
-                <th>Total</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${
-                Array.isArray(sem.subjects)
-                  ? sem.subjects.map(s => `
-                      <tr>
-                        <td><strong>${escapeHTML(s.code)}</strong></td>
-                        <td>${escapeHTML(s.name)}</td>
-                        <td>${escapeHTML(s.internal)}</td>
-                        <td>${escapeHTML(s.external)}</td>
-                        <td><strong>${escapeHTML(s.total)}</strong></td>
-                        <td><span class="status-badge ${s.result === "PASS" ? "pass" : "fail"}">${escapeHTML(s.result)}</span></td>
-                      </tr>
-                    `).join("")
-                  : ""
-              }
-            </tbody>
-          </table>
-        </div>
-      </div>
-    `;
-  });
-
-  DOM.resultsContainer.innerHTML = html;
-  bindExternalButton("btn-open-sbtet-results", () => openSBTETConnect("results"));
-}
-
-
-/* ==========================================================================
-   Marks Renderer
-   ========================================================================== */
-
-function renderMarks(data) {
-  if (!DOM.marksContainer) return;
-  const marks = Array.isArray(data?.currentMidMarks) ? data.currentMidMarks : [];
-
-  let html = `
-    <div class="demo-data-badge">
-      <i class="fa-solid fa-flask"></i> Periodic Mid Assessments
-    </div>
-    <div class="data-card">
-      <div class="data-card-header">
-        <h3 class="data-card-title">Internal Marks</h3>
-      </div>
-      <div class="responsive-table-wrapper">
-        <table class="sbtet-table">
-          <thead>
-            <tr>
-              <th>Subject</th>
-              <th>Slip Test 1</th>
-              <th>Slip Test 2</th>
-              <th>Assignment</th>
-              <th>Mid Weighted Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${
-              marks.map(m => `
-                <tr>
-                  <td>${escapeHTML(m.subject)}</td>
-                  <td>${escapeHTML(m.slipTest1)}</td>
-                  <td>${escapeHTML(m.slipTest2)}</td>
-                  <td>${escapeHTML(m.assignment)}</td>
-                  <td><strong>${escapeHTML(m.midTotal)}</strong></td>
-                </tr>
-              `).join("")
-            }
-          </tbody>
-        </table>
-      </div>
-    </div>
-  `;
-
-  DOM.marksContainer.innerHTML = html;
-}
-
-
-/* ==========================================================================
-   Attendance Renderer (with Option 1 External Prefill Button)
-   ========================================================================== */
-
-function renderAttendance(data) {
-  if (!DOM.attendanceContainer) return;
-
-  const currentPin = state.studentProfile?.pin || data?.pin || "";
-  const months = Array.isArray(data?.months) ? data.months : [];
-  const aggregate = Number(data?.aggregatePercentage || 0);
-
-  let html = `
-    <div class="data-card" style="margin-bottom: 16px; border-left: 4px solid var(--success); background: #ecfdf5;">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-        <div>
-          <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--success);">Live Biometric Attendance</h4>
-          <p style="font-size: 0.78rem; color: var(--text-secondary);">Open SBTET Connect with PIN <strong>${escapeHTML(currentPin)}</strong> auto-queried</p>
-        </div>
-        <button id="btn-open-sbtet-attendance" class="btn btn-primary" style="background: var(--success); padding: 8px 16px; font-size: 0.82rem;">
-          <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Attendance
-        </button>
-      </div>
-    </div>
-
-    <div class="data-card">
-      <div class="data-card-header">
-        <div>
-          <h3 class="data-card-title">Aggregate Attendance</h3>
-          <span class="field-help">Mandatory attendance benchmark: 75.0%</span>
-        </div>
-        <span class="status-badge ${aggregate >= 75 ? "pass" : "fail"}">
-          ${escapeHTML(data?.aggregatePercentage ?? "0")}%
-        </span>
-      </div>
-      <div class="id-meta-grid" style="color: var(--text-main); margin-bottom: 14px;">
-        <div><span>College Working Days:</span> <strong>${escapeHTML(data?.totalWorkingDays ?? "0")}</strong></div>
-        <div><span>Days Present:</span> <strong>${escapeHTML(data?.attendedDays ?? "0")}</strong></div>
-      </div>
-      <div class="responsive-table-wrapper">
-        <table class="sbtet-table">
-          <thead>
-            <tr>
-              <th>Month</th>
-              <th>Total Periods</th>
-              <th>Attended Periods</th>
-              <th>Percentage</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${
-              months.map(m => `
-                <tr>
-                  <td><strong>${escapeHTML(m.month)}</strong></td>
-                  <td>${escapeHTML(m.totalPeriods)}</td>
-                  <td>${escapeHTML(m.attendedPeriods)}</td>
-                  <td><strong>${escapeHTML(m.percentage)}</strong></td>
-                </tr>
-              `).join("")
-            }
-          </tbody>
-        </table>
-      </div>
-    </div>
-  `;
-
-  DOM.attendanceContainer.innerHTML = html;
-  bindExternalButton("btn-open-sbtet-attendance", () => openSBTETConnect("attendance"));
-}
-
-
-/* ==========================================================================
-   Exams Renderer
-   ========================================================================== */
-
-function renderExams(data) {
-  if (!DOM.examsContainer) return;
-  const exams = Array.isArray(data?.upcomingExams) ? data.upcomingExams : [];
-
-  let html = `
-    <div class="data-card" style="margin-bottom: 16px; border-left: 4px solid var(--warning); background: #fffbeb;">
-      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-        <div>
-          <h4 style="font-size: 0.95rem; font-weight: 700; color: #92400e;">Hall Tickets & Exam Fee</h4>
-          <p style="font-size: 0.78rem; color: var(--text-secondary);">Direct access to official examination portals</p>
-        </div>
-        <button id="btn-open-sbtet-exams" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.82rem;">
-          <i class="fa-solid fa-arrow-up-right-from-square"></i> Open Exam Portal
-        </button>
-      </div>
-    </div>
-  `;
-
-  exams.forEach(e => {
-    html += `
-      <div class="data-card">
-        <div class="data-card-header">
-          <div>
-            <h3 class="data-card-title">${escapeHTML(e.sessionName)}</h3>
-            <span class="field-help">${escapeHTML(e.monthYear)}</span>
-          </div>
-          <span class="status-badge pass">${escapeHTML(e.feeStatus)}</span>
-        </div>
-        <div class="form-group">
-          <label>Allocated Exam Center:</label>
-          <p style="font-size: 0.9rem; font-weight: 600;">${escapeHTML(e.examCenter)}</p>
-        </div>
-        <div class="form-group" style="margin-top: 10px;">
-          <label>Hall Ticket Number:</label>
-          <p style="font-family: monospace; font-size: 1rem; color: var(--primary); font-weight: 700;">${escapeHTML(e.hallTicketId)}</p>
-        </div>
-      </div>
-    `;
-  });
-
-  if (exams.length === 0) {
-    html += `
-      <div class="empty-state">
-        <i class="fa-solid fa-calendar-xmark empty-icon"></i>
-        <h3 class="empty-title">No Upcoming Exams</h3>
-        <p class="empty-desc">No examination records are currently available.</p>
-      </div>
-    `;
-  }
-
-  DOM.examsContainer.innerHTML = html;
-  bindExternalButton("btn-open-sbtet-exams", () => openSBTETConnect("exams"));
-}
-
-
-/* ==========================================================================
-   Timetable Renderer
-   ========================================================================== */
-
-function renderTimetable(data) {
-  if (!DOM.timetableContainer) return;
-  const schedule = Array.isArray(data?.schedule) ? data.schedule : [];
-
-  let html = `
-    <div class="demo-data-badge">
-      <i class="fa-solid fa-flask"></i> Scheme: ${escapeHTML(data?.scheme || "N/A")} | Branch: ${escapeHTML(data?.branch || "N/A")}
-    </div>
-    <div class="data-card">
-      <div class="data-card-header">
-        <h3 class="data-card-title">Theory Examination Schedule</h3>
-      </div>
-      <div class="responsive-table-wrapper">
-        <table class="sbtet-table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Timing</th>
-              <th>Subject Code</th>
-              <th>Subject Name</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${
-              schedule.map(s => `
-                <tr>
-                  <td><strong>${escapeHTML(s.date)}</strong></td>
-                  <td>${escapeHTML(s.time)}</td>
-                  <td><span class="id-badge-scheme" style="background: var(--bg-app); color: var(--primary);">${escapeHTML(s.code)}</span></td>
-                  <td>${escapeHTML(s.subject)}</td>
-                </tr>
-              `).join("")
-            }
-          </tbody>
-        </table>
-      </div>
-    </div>
-  `;
-
-  DOM.timetableContainer.innerHTML = html;
-}
-
-
-/* ==========================================================================
-   Notifications Renderer
-   ========================================================================== */
-
-function renderNotifications(items) {
+function renderNotifications() {
   if (!DOM.notificationsContainer) return;
-  const notifications = Array.isArray(items) ? items : [];
-  let html = "";
 
-  notifications.forEach(n => {
+  const officialLinks = [
+    {
+      title: "State Board of Technical Education & Training Official Website",
+      desc: "Access notifications, circulars, and academic board schedules.",
+      url: "https://sbtet.telangana.gov.in/"
+    },
+    {
+      title: "Telangana Polytechnic Student Services Portal",
+      desc: "Student services, fee payments, and bio-metric attendance verifications.",
+      url: "https://polytechnic.ts.gov.in/"
+    },
+    {
+      title: "SBTET Connect Portal",
+      desc: "Direct access to real-time student results and evaluation updates.",
+      url: "https://sbtetconnect.app/"
+    }
+  ];
+
+  let html = "";
+  officialLinks.forEach(item => {
     html += `
-      <div class="data-card">
+      <div class="data-card" style="margin-bottom: 14px;">
         <div class="data-card-header">
-          <h3 class="data-card-title" style="font-size: 0.95rem;">
-            ${n.isUrgent ? `<span class="status-badge fail" style="margin-right: 6px;">Important</span>` : ""}
-            ${escapeHTML(n.title)}
-          </h3>
-          <span class="field-help">${escapeHTML(n.date)}</span>
+          <h3 class="data-card-title" style="font-size: 0.95rem;">${escapeHTML(item.title)}</h3>
+          <span class="status-badge pass">Official</span>
         </div>
-        <p style="font-size: 0.85rem; color: var(--text-secondary);">${escapeHTML(n.desc)}</p>
+        <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 12px;">${escapeHTML(item.desc)}</p>
+        <a href="${item.url}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="padding: 8px 16px; font-size: 0.8rem; display: inline-flex;">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i> Visit Official Portal
+        </a>
       </div>
     `;
   });
-
-  if (notifications.length === 0) {
-    html = `
-      <div class="empty-state">
-        <i class="fa-solid fa-bell-slash empty-icon"></i>
-        <h3 class="empty-title">No Notifications</h3>
-        <p class="empty-desc">There are no new notifications right now.</p>
-      </div>
-    `;
-  }
 
   DOM.notificationsContainer.innerHTML = html;
-}
-
-function bindExternalButton(btnId, callback) {
-  const btn = document.getElementById(btnId);
-  if (btn) {
-    btn.addEventListener("click", callback);
-  }
 }

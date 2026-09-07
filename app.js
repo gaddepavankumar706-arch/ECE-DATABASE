@@ -612,58 +612,74 @@ onAuthStateChanged(auth, async (user) => {
     }
 
 
-  } catch (firestoreError) {
+} catch (firestoreError) {
 
-    console.error(
-      "Firestore Verification Error:",
-      firestoreError
-    );
-
-
-    let message =
-      firestoreError?.message ||
-      "Unknown Firestore error.";
+    console.error("========== FIRESTORE ERROR ==========");
+    console.error("Error object:", firestoreError);
+    console.error("Error code:", firestoreError?.code);
+    console.error("Error message:", firestoreError?.message);
+    console.error("User UID:", state.currentUser?.uid);
+    console.error("====================================");
 
 
-    /*
-     * More useful Firestore error messages
-     */
+    let message = firestoreError?.message || "Unknown Firestore error.";
 
-    if (
-      firestoreError?.code ===
-      "permission-denied"
-    ) {
+    let title = "Firestore Error";
 
-      message =
-        "Firestore permission denied. Check your Firestore Security Rules.";
 
-    } else if (
-      firestoreError?.code ===
-      "unavailable"
-    ) {
+    if (firestoreError?.code === "permission-denied") {
 
-      message =
-        "Firestore is temporarily unavailable. Check your internet connection.";
+        title = "Permission Denied";
 
-    } else if (
-      firestoreError?.code ===
-      "failed-precondition"
-    ) {
+        message =
+            "Firestore rejected the read. Check Firestore Database → Rules.";
 
-      message =
-        "Firestore database configuration is incomplete.";
+    }
+
+    else if (firestoreError?.code === "failed-precondition") {
+
+        title = "Firestore Configuration Error";
+
+        message =
+            "Firestore database is not configured correctly.";
+
+    }
+
+    else if (firestoreError?.code === "unavailable") {
+
+        title = "Firestore Unavailable";
+
+        message =
+            "Firestore is unavailable. Check your internet connection.";
+
+    }
+
+    else if (firestoreError?.code === "not-found") {
+
+        title = "Firestore Database Not Found";
+
+        message =
+            "The Firestore database referenced by this Firebase project was not found.";
 
     }
 
 
     showToast(
-      `Unable to retrieve student profile: ${message}`,
-      "error",
-      10000
+        `${title}: ${message}`,
+        "error",
+        15000
     );
 
 
+    /*
+     * IMPORTANT:
+     * Don't silently pretend this is always a rules problem.
+     */
+
+    hideLoader();
+
     setScreen("auth");
+}
 
 
   } finally {

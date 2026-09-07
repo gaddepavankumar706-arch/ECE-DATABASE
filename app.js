@@ -822,3 +822,16 @@ function renderNotifications(items) {
   });
   DOM.notificationsContainer.innerHTML = html;
 }
+
+// Fallback: Force-hide loader after 5 seconds if auth state stalls
+setTimeout(() => {
+  const loader = document.getElementById("screen-loader");
+  if (loader && !loader.classList.contains("fade-out")) {
+    loader.classList.add("fade-out");
+    // If no view is active, ensure the auth view is shown
+    const hasActive = document.querySelector(".app-screen.active");
+    if (!hasActive) {
+      document.getElementById("view-auth").classList.add("active");
+    }
+  }
+}, 5000);

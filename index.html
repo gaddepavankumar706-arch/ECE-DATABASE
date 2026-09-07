@@ -1,1 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#1a365d" />
+  <meta name="description" content="SBTET Student Connect - Your digital companion for Telangana diploma education." />
+  <title>SBTET Student Connect</title>
+  
+  <!-- Font & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
 
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container" aria-live="polite"></div>
+
+  <!-- Global Loader Screen -->
+  <div id="screen-loader" class="screen-loader">
+    <div class="loader-content">
+      <div class="spinner"></div>
+      <p class="loader-text" id="loader-status-text">Loading SBTET Connect...</p>
+    </div>
+  </div>
+
+  <!-- Screen 1: Authentication View -->
+  <main id="view-auth" class="app-screen active">
+    <div class="auth-container">
+      <div class="auth-hero">
+        <div class="hero-badge">Telangana Polytechnic Portal</div>
+        <div class="hero-icon-wrap">
+          <i class="fa-solid fa-graduation-cap"></i>
+        </div>
+        <h1 class="brand-title">SBTET Student Connect</h1>
+        <p class="brand-tagline">Your digital companion for Telangana diploma education</p>
+      </div>
+
+      <div class="auth-card">
+        <div class="auth-card-body">
+          <h2 class="auth-card-title">Welcome Student</h2>
+          <p class="auth-card-sub">Sign in using your Google account to access your academics, exams, and attendance.</p>
+          
+          <button id="btn-google-login" class="btn btn-google" type="button">
+            <svg class="google-svg" viewBox="0 0 24 24" width="22" height="22">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            </svg>
+            <span>Continue with Google</span>
+          </button>
+
+          <p class="auth-privacy-note">
+            <i class="fa-solid fa-shield-halved"></i> Your Google account is used only for secure authentication.
+          </p>
+        </div>
+      </div>
+      
+      <footer class="auth-footer">
+        <p>State Board of Technical Education and Training, Telangana</p>
+      </footer>
+    </div>
+  </main>
+
+  <!-- Screen 2: Profile Setup / Registration View -->
+  <main id="view-setup" class="app-screen">
+    <div class="setup-container">
+      <header class="setup-header">
+        <div class="user-greeting-pill">
+          <img id="setup-avatar" src="" alt="Avatar" class="mini-avatar" />
+          <span id="setup-user-email">student@gmail.com</span>
+        </div>
+        <h1 class="setup-title">Complete Your Student Profile</h1>
+        <p class="setup-subtitle">Link your Telangana SBTET academic credentials to continue.</p>
+      </header>
+
+      <form id="form-profile-setup" class="app-form" novalidate>
+        <!-- Personal Details Section -->
+        <fieldset class="form-section">
+          <legend class="section-legend"><i class="fa-solid fa-id-card"></i> Personal Details</legend>
+          
+          <div class="form-group">
+            <label for="setup-name">Full Name (as per SSC/Diploma Records) <span class="req">*</span></label>
+            <input type="text" id="setup-name" class="form-control" placeholder="e.g. Akash Kumar" required />
+            <span class="field-error" id="err-setup-name"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="setup-pin">Permanent Identification Number (PIN) <span class="req">*</span></label>
+            <input type="text" id="setup-pin" class="form-control uppercase" placeholder="e.g. 21001-EC-001" maxlength="15" required />
+            <span class="field-help">Format: [Batch][CollegeCode]-[BranchCode]-[RollNumber]</span>
+            <span class="field-error" id="err-setup-pin"></span>
+          </div>
+        </fieldset>
+
+        <!-- Academic Details Section -->
+        <fieldset class="form-section">
+          <legend class="section-legend"><i class="fa-solid fa-graduation-cap"></i> Academic Details</legend>
+          
+          <div class="form-row">
+            <div class="form-group col-half">
+              <label for="setup-branch">Branch <span class="req">*</span></label>
+              <select id="setup-branch" class="form-control" required>
+                <option value="" disabled selected>Select Branch</option>
+                <option value="ECE">Electronics & Communication (ECE)</option>
+                <option value="CSE">Computer Engineering (CSE)</option>
+                <option value="EEE">Electrical & Electronics (EEE)</option>
+                <option value="ME">Mechanical Engineering (ME)</option>
+                <option value="CE">Civil Engineering (CE)</option>
+                <option value="Other">Other Branch</option>
+              </select>
+              <span class="field-error" id="err-setup-branch"></span>
+            </div>
+
+            <div class="form-group col-half">
+              <label for="setup-scheme">Curriculum Scheme <span class="req">*</span></label>
+              <select id="setup-scheme" class="form-control" required>
+                <option value="" disabled selected>Select Scheme</option>
+                <option value="C24">C-24 Scheme</option>
+                <option value="C26">C-26 Scheme</option>
+                <option value="C21">C-21 Scheme</option>
+                <option value="C18">C-18 Scheme</option>
+                <option value="Other">Other Scheme</option>
+              </select>
+              <span class="field-error" id="err-setup-scheme"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="setup-college">Polytechnic College Name <span class="req">*</span></label>
+            <input type="text" id="setup-college" class="form-control" placeholder="e.g. Government Polytechnic, Masab Tank, Hyderabad" required />
+            <span class="field-error" id="err-setup-college"></span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-half">
+              <label for="setup-academic-year">Academic Year <span class="req">*</span></label>
+              <select id="setup-academic-year" class="form-control" required>
+                <option value="" disabled selected>Select Year</option>
+                <option value="2026-2027">2026-2027</option>
+                <option value="2025-2026">2025-2026</option>
+                <option value="2024-2025">2024-2025</option>
+                <option value="2023-2024">2023-2024</option>
+              </select>
+              <span class="field-error" id="err-setup-academic-year"></span>
+            </div>
+
+            <div class="form-group col-half">
+              <label for="setup-current-year">Current Year of Study <span class="req">*</span></label>
+              <select id="setup-current-year" class="form-control" required>
+                <option value="" disabled selected>Select Current Year</option>
+                <option value="1st Year">1st Year</option>
+                <option value="2nd Year">2nd Year</option>
+                <option value="3rd Year">3rd Year</option>
+              </select>
+              <span class="field-error" id="err-setup-current-year"></span>
+            </div>
+          </div>
+        </fieldset>
+
+        <div class="form-actions">
+          <button type="submit" id="btn-save-profile" class="btn btn-primary btn-block">
+            <span class="btn-text">Save & Continue to Dashboard</span>
+            <span class="btn-spinner hidden"></span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <!-- Screen 3: Main Dashboard Portal Application -->
+  <div id="view-dashboard" class="app-screen portal-layout">
+    <!-- Desktop Left Sidebar -->
+    <aside class="portal-sidebar">
+      <div class="sidebar-brand">
+        <i class="fa-solid fa-graduation-cap"></i>
+        <span>SBTET Connect</span>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-tab="tab-overview">
+          <i class="fa-solid fa-house"></i>
+          <span>Overview</span>
+        </button>
+        <button class="nav-item" data-tab="tab-results">
+          <i class="fa-solid fa-chart-column"></i>
+          <span>Results</span>
+        </button>
+        <button class="nav-item" data-tab="tab-marks">
+          <i class="fa-solid fa-file-lines"></i>
+          <span>Subject Marks</span>
+        </button>
+        <button class="nav-item" data-tab="tab-attendance">
+          <i class="fa-solid fa-calendar-check"></i>
+          <span>Attendance</span>
+        </button>
+        <button class="nav-item" data-tab="tab-exams">
+          <i class="fa-solid fa-pen-to-square"></i>
+          <span>Examinations</span>
+        </button>
+        <button class="nav-item" data-tab="tab-timetable">
+          <i class="fa-solid fa-calendar-days"></i>
+          <span>Time Table</span>
+        </button>
+        <button class="nav-item" data-tab="tab-notifications">
+          <i class="fa-solid fa-bell"></i>
+          <span>Notifications</span>
+        </button>
+        <button class="nav-item" data-tab="tab-sbtet-info">
+          <i class="fa-solid fa-circle-info"></i>
+          <span>SBTET Info</span>
+        </button>
+        <button class="nav-item" data-tab="tab-profile">
+          <i class="fa-solid fa-user-gear"></i>
+          <span>My Profile</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <button id="btn-sidebar-logout" class="btn-sidebar-logout">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <span>Sign Out</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Content Stage Area -->
+    <div class="portal-main">
+      <!-- Portal Top Header -->
+      <header class="portal-header">
+        <div class="header-left">
+          <span class="mobile-brand-icon"><i class="fa-solid fa-graduation-cap"></i></span>
+          <div>
+            <h2 class="portal-greeting" id="dash-greeting">Welcome back 👋</h2>
+            <p class="portal-subtext" id="dash-subtext">Telangana State Board of Technical Education</p>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <div class="user-pill" id="btn-header-profile">
+            <img id="dash-user-avatar" src="" alt="Student Profile" class="avatar-img" />
+            <div class="user-pill-text">
+              <span id="dash-pill-name" class="pill-name">Student</span>
+              <span id="dash-pill-pin" class="pill-pin">PIN: -----</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Scrollable Tab Viewport -->
+      <div class="portal-body">
+
+        <!-- 1. OVERVIEW TAB -->
+        <section id="tab-overview" class="portal-tab active">
+          <!-- Student Identity Card -->
+          <div class="student-id-card">
+            <div class="id-card-header">
+              <div class="id-polytechnic-name" id="dash-card-college">Government Polytechnic College</div>
+              <span class="id-badge-scheme" id="dash-card-scheme">Scheme: C24</span>
+            </div>
+            <div class="id-card-body">
+              <div class="id-avatar-wrap">
+                <img id="dash-id-avatar" src="" alt="Profile" />
+              </div>
+              <div class="id-details">
+                <h3 class="id-student-name" id="dash-card-name">Student Name</h3>
+                <div class="id-pin-badge" id="dash-card-pin">PIN: ----------</div>
+                <div class="id-meta-grid">
+                  <div><span>Branch:</span> <strong id="dash-card-branch">--</strong></div>
+                  <div><span>Current Year:</span> <strong id="dash-card-year">--</strong></div>
+                  <div><span>Academic Year:</span> <strong id="dash-card-ac-year">--</strong></div>
+                  <div><span>Status:</span> <strong class="text-success">Regular</strong></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section Heading -->
+          <h3 class="section-title">Academic Services</h3>
+
+          <!-- Grid Cards (8 Services) -->
+          <div class="dashboard-grid">
+            <div class="dash-card" data-open-tab="tab-results">
+              <div class="card-icon bg-indigo"><i class="fa-solid fa-chart-column"></i></div>
+              <div class="card-details">
+                <h4>Results</h4>
+                <p>View semester marks sheets & backlogs</p>
+              </div>
+              <i class="fa-solid fa-chevron-right card-arrow"></i>
+            </div>
+
+            <div class="dash-card" data-open-tab="tab-marks">
+              <div class="card-icon bg-blue"><i class="fa-solid fa-file-lines"></i></div>
+              <div class="card-details">
+                <h4>Marks</h4>
+                <p>Internal assessment & lab marks</p>
+              </div>
+              <i class="fa-solid fa-chevron-right card-arrow"></i>
+            </div>
+
+            <div class="dash-card" data-open-tab="tab-attendance">
+              <div class="card-icon bg-emerald"><i class="fa-solid fa-calendar-check"></i></div>
+              <div class="card-details">
+                <h4>Attendance</h4>
+                <p>Track monthly bio-metric & aggregate %</p>
+              </div>
+              <i class="fa-solid fa-chevron-right card-arrow"></i>
+            </div>
+
+            <div class="dash-card" data-open-tab="tab-exams">
+              <div class="card-icon bg-amber"><i class="fa-solid fa-pen-to-square"></i></div>
+              <div class="card-details">
+                <h4>Examinations</h4>
+                <p>Fee payment, hall tickets & schedules</p>
+              </div>
+              <i class="fa-solid fa-chevron-right card-arrow"></i>
+            </div>
+
+            <div class="dash-card" data-open-tab="tab-timetable">
+              <div class="card-icon bg-purple"><i class="fa-solid fa-calendar-days"></i></div>
+              <div class="card-details">
+                <h4>Time Table</h4>
+                <p>Semester exam timetable & routine</p>
+              </div>
+              <i class="fa-solid fa-chevron-right card-arrow"></i>
+            </div>
+
+            <div class="dash-card" data-open-tab="tab-notifications">
+              <div class="card-icon bg-rose"><i class="fa-solid fa-bell"></i></div>
+              <div class="card-details">
+                <h4>Notifications</h4>
+                <p>Official SBTET circulars & updates</p>
+              </div>
+              <i class="fa-solid fa-chevron-right card-arrow"></i>
+            </div>
+
+            <div class="dash-card" data-open-tab="tab-sbtet-info">
+              <div class="card-icon bg-teal"><i class="fa-solid fa-circle-info"></i></div>
+              <div class="card-details">
+                <h4>SBTET Information</h4>
+                <p>Syllabus, contact desk & equivalency</p>
+              </div>
+              <i class="fa-solid fa-chevron-right card-arrow"></i>
+            </div>
+
+            <div class="dash-card" data-open-tab="tab-profile">
+              <div class="card-icon bg-slate"><i class="fa-solid fa-user-gear"></i></div>
+              <div class="card-details">
+                <h4>Student Profile</h4>
+                <p>View & update academic profile</p>
+              </div>
+              <i class="fa-solid fa-chevron-right card-arrow"></i>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. RESULTS TAB -->
+        <section id="tab-results" class="portal-tab">
+          <div class="tab-header-card">
+            <h2><i class="fa-solid fa-chart-column"></i> Semester Results</h2>
+            <p>Official examination scorecards published by SBTET Telangana.</p>
+          </div>
+          <div id="results-container" class="data-container"></div>
+        </section>
+
+        <!-- 3. MARKS TAB -->
+        <section id="tab-marks" class="portal-tab">
+          <div class="tab-header-card">
+            <h2><i class="fa-solid fa-file-lines"></i> Subject Internal & Lab Marks</h2>
+            <p>Periodic assessments, assignments, and mid-examination analytics.</p>
+          </div>
+          <div id="marks-container" class="data-container"></div>
+        </section>
+
+        <!-- 4. ATTENDANCE TAB -->
+        <section id="tab-attendance" class="portal-tab">
+          <div class="tab-header-card">
+            <h2><i class="fa-solid fa-calendar-check"></i> Biometric Attendance</h2>
+            <p>Attendance records required for semester examination condonation.</p>
+          </div>
+          <div id="attendance-container" class="data-container"></div>
+        </section>
+
+        <!-- 5. EXAMINATIONS TAB -->
+        <section id="tab-exams" class="portal-tab">
+          <div class="tab-header-card">
+            <h2><i class="fa-solid fa-pen-to-square"></i> Examinations & Hall Tickets</h2>
+            <p>Current exam sessions, fee verification, and hall ticket access.</p>
+          </div>
+          <div id="exams-container" class="data-container"></div>
+        </section>
+
+        <!-- 6. TIMETABLE TAB -->
+        <section id="tab-timetable" class="portal-tab">
+          <div class="tab-header-card">
+            <h2><i class="fa-solid fa-calendar-days"></i> Semester Examination Timetable</h2>
+            <p>Official schedules for regular and supplementary tests.</p>
+          </div>
+          <div id="timetable-container" class="data-container"></div>
+        </section>
+
+        <!-- 7. NOTIFICATIONS TAB -->
+        <section id="tab-notifications" class="portal-tab">
+          <div class="tab-header-card">
+            <h2><i class="fa-solid fa-bell"></i> SBTET Official Circulars</h2>
+            <p>Authentic board announcements, exam dates, and notifications.</p>
+          </div>
+          <div id="notifications-container" class="data-container"></div>
+        </section>
+
+        <!-- 8. SBTET INFO TAB -->
+        <section id="tab-sbtet-info" class="portal-tab">
+          <div class="tab-header-card">
+            <h2><i class="fa-solid fa-circle-info"></i> SBTET Board Information</h2>
+            <p>Statutory educational body guidelines, rules, and contact desks.</p>
+          </div>
+          <div class="info-grid">
+            <div class="info-card">
+              <h3><i class="fa-solid fa-building-columns"></i> Head Office</h3>
+              <p>State Board of Technical Education and Training (SBTET), S.V. Bhavan, Masab Tank, Hyderabad, Telangana - 500028.</p>
+            </div>
+            <div class="info-card">
+              <h3><i class="fa-solid fa-phone"></i> Student Helpdesk</h3>
+              <p>Helpdesk: 040-23221191 / 23221193<br/>Email: admin-sbtet@telangana.gov.in</p>
+            </div>
+            <div class="info-card">
+              <h3><i class="fa-solid fa-scale-balanced"></i> Promotion Rules</h3>
+              <p>Minimum attendance mandatory: 75%. Condonation permitted between 65% - 75% on medical grounds upon payment of prescribed fee.</p>
+            </div>
+            <div class="info-card">
+              <h3><i class="fa-solid fa-globe"></i> Official Portals</h3>
+              <p>Official Website: sbtet.telangana.gov.in<br/>SBTET Services: polytechnic.ts.gov.in</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 9. PROFILE & SETTINGS TAB -->
+        <section id="tab-profile" class="portal-tab">
+          <div class="tab-header-card">
+            <h2><i class="fa-solid fa-user-gear"></i> Student Profile Settings</h2>
+            <p>View and maintain your official polytechnic student credentials.</p>
+          </div>
+
+          <form id="form-profile-edit" class="app-form bg-card" novalidate>
+            <div class="profile-edit-avatar-header">
+              <img id="edit-avatar-preview" src="" alt="Student Avatar" class="edit-profile-avatar" />
+              <div>
+                <h3 id="edit-avatar-name">Akash</h3>
+                <p id="edit-avatar-email" class="text-muted">student@gmail.com</p>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="edit-name">Full Name <span class="req">*</span></label>
+              <input type="text" id="edit-name" class="form-control" required />
+              <span class="field-error" id="err-edit-name"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="edit-pin">PIN Number <span class="req">*</span></label>
+              <input type="text" id="edit-pin" class="form-control uppercase" maxlength="15" required />
+              <span class="field-error" id="err-edit-pin"></span>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-half">
+                <label for="edit-branch">Branch <span class="req">*</span></label>
+                <select id="edit-branch" class="form-control" required>
+                  <option value="ECE">ECE</option>
+                  <option value="CSE">CSE</option>
+                  <option value="EEE">EEE</option>
+                  <option value="ME">ME</option>
+                  <option value="CE">CE</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div class="form-group col-half">
+                <label for="edit-scheme">Curriculum Scheme <span class="req">*</span></label>
+                <select id="edit-scheme" class="form-control" required>
+                  <option value="C24">C24</option>
+                  <option value="C26">C26</option>
+                  <option value="C21">C21</option>
+                  <option value="C18">C18</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="edit-college">College Name <span class="req">*</span></label>
+              <input type="text" id="edit-college" class="form-control" required />
+              <span class="field-error" id="err-edit-college"></span>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-half">
+                <label for="edit-academic-year">Academic Year <span class="req">*</span></label>
+                <select id="edit-academic-year" class="form-control" required>
+                  <option value="2026-2027">2026-2027</option>
+                  <option value="2025-2026">2025-2026</option>
+                  <option value="2024-2025">2024-2025</option>
+                  <option value="2023-2024">2023-2024</option>
+                </select>
+              </div>
+
+              <div class="form-group col-half">
+                <label for="edit-current-year">Current Year of Study <span class="req">*</span></label>
+                <select id="edit-current-year" class="form-control" required>
+                  <option value="1st Year">1st Year</option>
+                  <option value="2nd Year">2nd Year</option>
+                  <option value="3rd Year">3rd Year</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-actions-split">
+              <button type="submit" id="btn-update-profile" class="btn btn-primary">
+                <span class="btn-text">Save Changes</span>
+                <span class="btn-spinner hidden"></span>
+              </button>
+              <button type="button" id="btn-profile-logout" class="btn btn-danger">
+                <i class="fa-solid fa-arrow-right-from-bracket"></i> Sign Out
+              </button>
+            </div>
+          </form>
+        </section>
+
+      </div> <!-- /portal-body -->
+    </div> <!-- /portal-main -->
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav class="mobile-bottom-nav">
+      <button class="bottom-nav-item active" data-tab="tab-overview">
+        <i class="fa-solid fa-house"></i>
+        <span>Home</span>
+      </button>
+      <button class="bottom-nav-item" data-tab="tab-results">
+        <i class="fa-solid fa-chart-column"></i>
+        <span>Results</span>
+      </button>
+      <button class="bottom-nav-item" data-tab="tab-attendance">
+        <i class="fa-solid fa-calendar-check"></i>
+        <span>Attend</span>
+      </button>
+      <button class="bottom-nav-item" data-tab="tab-exams">
+        <i class="fa-solid fa-pen-to-square"></i>
+        <span>Exams</span>
+      </button>
+      <button class="bottom-nav-item" data-tab="tab-profile">
+        <i class="fa-solid fa-user"></i>
+        <span>Profile</span>
+      </button>
+    </nav>
+  </div>
+
+  <!-- Main JavaScript Application Bootstrap (ES Module) -->
+  <script type="module" src="app.js"></script>
+</body>
+</html>

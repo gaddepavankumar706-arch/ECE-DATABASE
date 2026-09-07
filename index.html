@@ -80,7 +80,6 @@
       </header>
 
       <form id="form-profile-setup" class="app-form" novalidate>
-        <!-- Personal Details Section -->
         <fieldset class="form-section">
           <legend class="section-legend"><i class="fa-solid fa-id-card"></i> Personal Details</legend>
           
@@ -98,7 +97,6 @@
           </div>
         </fieldset>
 
-        <!-- Academic Details Section -->
         <fieldset class="form-section">
           <legend class="section-legend"><i class="fa-solid fa-graduation-cap"></i> Academic Details</legend>
           
@@ -133,7 +131,7 @@
 
           <div class="form-group">
             <label for="setup-college">Polytechnic College Name <span class="req">*</span></label>
-            <input type="text" id="setup-college" class="form-control" placeholder="e.g. Government Polytechnic, Masab Tank, Hyderabad" required />
+            <input type="text" id="setup-college" class="form-control" placeholder="e.g. Government Polytechnic" required />
             <span class="field-error" id="err-setup-college"></span>
           </div>
 
@@ -185,39 +183,19 @@
       <nav class="sidebar-nav">
         <button class="nav-item active" data-tab="tab-overview">
           <i class="fa-solid fa-house"></i>
-          <span>Overview</span>
+          <span>Home</span>
         </button>
         <button class="nav-item" data-tab="tab-results">
           <i class="fa-solid fa-chart-column"></i>
           <span>Results</span>
         </button>
-        <button class="nav-item" data-tab="tab-marks">
-          <i class="fa-solid fa-file-lines"></i>
-          <span>Subject Marks</span>
-        </button>
         <button class="nav-item" data-tab="tab-attendance">
           <i class="fa-solid fa-calendar-check"></i>
-          <span>Attendance</span>
-        </button>
-        <button class="nav-item" data-tab="tab-exams">
-          <i class="fa-solid fa-pen-to-square"></i>
-          <span>Examinations</span>
-        </button>
-        <button class="nav-item" data-tab="tab-timetable">
-          <i class="fa-solid fa-calendar-days"></i>
-          <span>Time Table</span>
-        </button>
-        <button class="nav-item" data-tab="tab-notifications">
-          <i class="fa-solid fa-bell"></i>
-          <span>Notifications</span>
+          <span>Attend</span>
         </button>
         <button class="nav-item" data-tab="tab-sbtet-info">
           <i class="fa-solid fa-circle-info"></i>
           <span>SBTET Info</span>
-        </button>
-        <button class="nav-item" data-tab="tab-profile">
-          <i class="fa-solid fa-user-gear"></i>
-          <span>My Profile</span>
         </button>
       </nav>
 
@@ -280,29 +258,11 @@
             </div>
           </div>
 
-          <!-- Section Heading -->
+          <!-- Academic Services Heading -->
           <h3 class="section-title">Academic Services</h3>
 
-          <!-- Grid Cards (8 Services) -->
+          <!-- Grid Cards (Strictly Attendance, Results, SBTET Information) -->
           <div class="dashboard-grid">
-            <div class="dash-card" data-open-tab="tab-results">
-              <div class="card-icon bg-indigo"><i class="fa-solid fa-chart-column"></i></div>
-              <div class="card-details">
-                <h4>Results</h4>
-                <p>View semester marks sheets & backlogs</p>
-              </div>
-              <i class="fa-solid fa-chevron-right card-arrow"></i>
-            </div>
-
-            <div class="dash-card" data-open-tab="tab-marks">
-              <div class="card-icon bg-blue"><i class="fa-solid fa-file-lines"></i></div>
-              <div class="card-details">
-                <h4>Marks</h4>
-                <p>Internal assessment & lab marks</p>
-              </div>
-              <i class="fa-solid fa-chevron-right card-arrow"></i>
-            </div>
-
             <div class="dash-card" data-open-tab="tab-attendance">
               <div class="card-icon bg-emerald"><i class="fa-solid fa-calendar-check"></i></div>
               <div class="card-details">
@@ -312,29 +272,11 @@
               <i class="fa-solid fa-chevron-right card-arrow"></i>
             </div>
 
-            <div class="dash-card" data-open-tab="tab-exams">
-              <div class="card-icon bg-amber"><i class="fa-solid fa-pen-to-square"></i></div>
+            <div class="dash-card" data-open-tab="tab-results">
+              <div class="card-icon bg-indigo"><i class="fa-solid fa-chart-column"></i></div>
               <div class="card-details">
-                <h4>Examinations</h4>
-                <p>Fee payment, hall tickets & schedules</p>
-              </div>
-              <i class="fa-solid fa-chevron-right card-arrow"></i>
-            </div>
-
-            <div class="dash-card" data-open-tab="tab-timetable">
-              <div class="card-icon bg-purple"><i class="fa-solid fa-calendar-days"></i></div>
-              <div class="card-details">
-                <h4>Time Table</h4>
-                <p>Semester exam timetable & routine</p>
-              </div>
-              <i class="fa-solid fa-chevron-right card-arrow"></i>
-            </div>
-
-            <div class="dash-card" data-open-tab="tab-notifications">
-              <div class="card-icon bg-rose"><i class="fa-solid fa-bell"></i></div>
-              <div class="card-details">
-                <h4>Notifications</h4>
-                <p>Official SBTET circulars & updates</p>
+                <h4>Results</h4>
+                <p>View semester marks sheets & backlogs</p>
               </div>
               <i class="fa-solid fa-chevron-right card-arrow"></i>
             </div>
@@ -343,77 +285,14 @@
               <div class="card-icon bg-teal"><i class="fa-solid fa-circle-info"></i></div>
               <div class="card-details">
                 <h4>SBTET Information</h4>
-                <p>Syllabus, contact desk & equivalency</p>
-              </div>
-              <i class="fa-solid fa-chevron-right card-arrow"></i>
-            </div>
-
-            <div class="dash-card" data-open-tab="tab-profile">
-              <div class="card-icon bg-slate"><i class="fa-solid fa-user-gear"></i></div>
-              <div class="card-details">
-                <h4>Student Profile</h4>
-                <p>View & update academic profile</p>
+                <p>Syllabus, contact desk & board portal</p>
               </div>
               <i class="fa-solid fa-chevron-right card-arrow"></i>
             </div>
           </div>
         </section>
 
-        <!-- 2. RESULTS TAB -->
-        <section id="tab-results" class="portal-tab">
-          <div class="tab-header-card">
-            <h2><i class="fa-solid fa-chart-column"></i> Semester Results</h2>
-            <p>Official examination scorecards published by SBTET Telangana.</p>
-          </div>
-          <div id="results-container" class="data-container"></div>
-        </section>
-
-        <!-- 3. MARKS TAB -->
-        <section id="tab-marks" class="portal-tab">
-          <div class="tab-header-card">
-            <h2><i class="fa-solid fa-file-lines"></i> Subject Internal & Lab Marks</h2>
-            <p>Periodic assessments, assignments, and mid-examination analytics.</p>
-          </div>
-          <div id="marks-container" class="data-container"></div>
-        </section>
-
-        <!-- 4. ATTENDANCE TAB -->
-        <section id="tab-attendance" class="portal-tab">
-          <div class="tab-header-card">
-            <h2><i class="fa-solid fa-calendar-check"></i> Biometric Attendance</h2>
-            <p>Attendance records required for semester examination condonation.</p>
-          </div>
-          <div id="attendance-container" class="data-container"></div>
-        </section>
-
-        <!-- 5. EXAMINATIONS TAB -->
-        <section id="tab-exams" class="portal-tab">
-          <div class="tab-header-card">
-            <h2><i class="fa-solid fa-pen-to-square"></i> Examinations & Hall Tickets</h2>
-            <p>Current exam sessions, fee verification, and hall ticket access.</p>
-          </div>
-          <div id="exams-container" class="data-container"></div>
-        </section>
-
-        <!-- 6. TIMETABLE TAB -->
-        <section id="tab-timetable" class="portal-tab">
-          <div class="tab-header-card">
-            <h2><i class="fa-solid fa-calendar-days"></i> Semester Examination Timetable</h2>
-            <p>Official schedules for regular and supplementary tests.</p>
-          </div>
-          <div id="timetable-container" class="data-container"></div>
-        </section>
-
-        <!-- 7. NOTIFICATIONS TAB -->
-        <section id="tab-notifications" class="portal-tab">
-          <div class="tab-header-card">
-            <h2><i class="fa-solid fa-bell"></i> SBTET Official Circulars</h2>
-            <p>Authentic board announcements, exam dates, and notifications.</p>
-          </div>
-          <div id="notifications-container" class="data-container"></div>
-        </section>
-
-        <!-- 8. SBTET INFO TAB -->
+        <!-- 2. SBTET INFO TAB -->
         <section id="tab-sbtet-info" class="portal-tab">
           <div class="tab-header-card">
             <h2><i class="fa-solid fa-circle-info"></i> SBTET Board Information</h2>
@@ -432,8 +311,78 @@
               <h3><i class="fa-solid fa-scale-balanced"></i> Promotion Rules</h3>
               <p>Minimum attendance mandatory: 75%. Condonation permitted between 65% - 75% on medical grounds upon payment of prescribed fee.</p>
             </div>
+            <div class="info-card">
+              <h3><i class="fa-solid fa-globe"></i> Official Portals</h3>
+              <p>Official Website: sbtet.telangana.gov.in<br/>SBTET Connect: sbtetconnect.app</p>
+            </div>
+          </div>
+        </section>
 
-                              <option value="2025-2026">2025-2026</option>
+        <!-- 3. PROFILE & SETTINGS TAB -->
+        <section id="tab-profile" class="portal-tab">
+          <div class="tab-header-card">
+            <h2><i class="fa-solid fa-user-gear"></i> Student Profile Settings</h2>
+            <p>View and maintain your official polytechnic student credentials.</p>
+          </div>
+
+          <form id="form-profile-edit" class="app-form bg-card" novalidate>
+            <div class="profile-edit-avatar-header">
+              <img id="edit-avatar-preview" src="" alt="Student Avatar" class="edit-profile-avatar" />
+              <div>
+                <h3 id="edit-avatar-name">Student</h3>
+                <p id="edit-avatar-email" class="text-muted">student@gmail.com</p>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="edit-name">Full Name <span class="req">*</span></label>
+              <input type="text" id="edit-name" class="form-control" required />
+              <span class="field-error" id="err-edit-name"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="edit-pin">PIN Number <span class="req">*</span></label>
+              <input type="text" id="edit-pin" class="form-control uppercase" maxlength="15" required />
+              <span class="field-error" id="err-edit-pin"></span>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-half">
+                <label for="edit-branch">Branch <span class="req">*</span></label>
+                <select id="edit-branch" class="form-control" required>
+                  <option value="ECE">ECE</option>
+                  <option value="CSE">CSE</option>
+                  <option value="EEE">EEE</option>
+                  <option value="ME">ME</option>
+                  <option value="CE">CE</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div class="form-group col-half">
+                <label for="edit-scheme">Curriculum Scheme <span class="req">*</span></label>
+                <select id="edit-scheme" class="form-control" required>
+                  <option value="C24">C24</option>
+                  <option value="C26">C26</option>
+                  <option value="C21">C21</option>
+                  <option value="C18">C18</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="edit-college">College Name <span class="req">*</span></label>
+              <input type="text" id="edit-college" class="form-control" required />
+              <span class="field-error" id="err-edit-college"></span>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-half">
+                <label for="edit-academic-year">Academic Year <span class="req">*</span></label>
+                <select id="edit-academic-year" class="form-control" required>
+                  <option value="2026-2027">2026-2027</option>
+                  <option value="2025-2026">2025-2026</option>
                   <option value="2024-2025">2024-2025</option>
                   <option value="2023-2024">2023-2024</option>
                 </select>
@@ -461,10 +410,10 @@
           </form>
         </section>
 
-      </div> <!-- /portal-body -->
-    </div> <!-- /portal-main -->
+      </div>
+    </div>
 
-    <!-- Mobile Bottom Navigation Bar -->
+    <!-- Mobile Bottom Navigation Bar (Home, Results, Attend, SBTET Info) -->
     <nav class="mobile-bottom-nav">
       <button class="bottom-nav-item active" data-tab="tab-overview">
         <i class="fa-solid fa-house"></i>
@@ -478,20 +427,14 @@
         <i class="fa-solid fa-calendar-check"></i>
         <span>Attend</span>
       </button>
-      <button class="bottom-nav-item" data-tab="tab-exams">
-        <i class="fa-solid fa-pen-to-square"></i>
-        <span>Exams</span>
-      </button>
-      <button class="bottom-nav-item" data-tab="tab-profile">
-        <i class="fa-solid fa-user"></i>
-        <span>Profile</span>
+      <button class="bottom-nav-item" data-tab="tab-sbtet-info">
+        <i class="fa-solid fa-circle-info"></i>
+        <span>SBTET Info</span>
       </button>
     </nav>
   </div>
 
-  <!-- Main JavaScript Application Bootstrap (ES Module) -->
+  <!-- Application Bootstrap -->
   <script type="module" src="app.js"></script>
 </body>
 </html>
-
-            

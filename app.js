@@ -200,13 +200,13 @@ function validatePIN(pin) {
     return { valid: false, message: "PIN is required." };
   }
   if (cleanPin.length < 9 || !pinRegex.test(cleanPin)) {
-    return { valid: false, message: "Invalid SBTET PIN format (e.g. 25002-EC-066)." };
+    return { valid: false, message: "Invalid SBTET PIN format (e.g. 21001-EC-001)." };
   }
   return { valid: true, sanitized: cleanPin };
 }
 
 /* ==========================================================================
-   SBTET Connect Direct Launcher (Auto-Redirect & PIN Copy)
+   Direct SBTET Connect Launcher
    ========================================================================== */
 
 export async function openSBTETConnect(route = "home") {
@@ -217,7 +217,7 @@ export async function openSBTETConnect(route = "home") {
     return;
   }
 
-  // 1. Copy PIN to clipboard automatically
+  // Copy PIN to clipboard automatically
   try {
     if (navigator.clipboard && window.isSecureContext) {
       await navigator.clipboard.writeText(pin);
@@ -235,7 +235,6 @@ export async function openSBTETConnect(route = "home") {
     console.warn("Clipboard access warning:", err);
   }
 
-  // 2. Build URL query string
   const encodedPin = encodeURIComponent(pin);
   let targetUrl = `https://sbtetconnect.app/?pin=${encodedPin}`;
 
@@ -247,14 +246,13 @@ export async function openSBTETConnect(route = "home") {
 
   showToast(`Copied PIN (${pin}). Opening SBTET Connect...`, "success", 2000);
 
-  // 3. Open portal in a new tab immediately
   setTimeout(() => {
     window.open(targetUrl, "_blank", "noopener,noreferrer");
-  }, 200);
+  }, 250);
 }
 
 /* ==========================================================================
-   Authentication
+   Google Authentication
    ========================================================================== */
 
 addClickListener(DOM.btnGoogleLogin, async () => {
@@ -325,7 +323,6 @@ onAuthStateChanged(auth, async (user) => {
     if (studentSnapshot.exists()) {
       state.studentProfile = studentSnapshot.data();
       populateDashboardUI(state.studentProfile, user);
-      pruneUnwantedCardsAndNav(); // Keeps only Home, Results, Attend, SBTET Info
       setScreen("dashboard");
       switchTab("tab-overview");
     } else {
@@ -439,7 +436,6 @@ if (DOM.formSetup) {
       state.studentProfile = profilePayload;
       showToast("Profile created successfully!", "success");
       populateDashboardUI(profilePayload, user);
-      pruneUnwantedCardsAndNav();
       setScreen("dashboard");
       switchTab("tab-overview");
     } catch (error) {
@@ -491,60 +487,11 @@ function populateDashboardUI(profile, user) {
 }
 
 /* ==========================================================================
-   DOM Pruning: Keep only Attendance, Results, and SBTET Information
-   ========================================================================== */
-
-function pruneUnwantedCardsAndNav() {
-  // 1. Remove unwanted cards from Academic Services grid (Keep Results, Attendance, SBTET Info)
-  document.querySelectorAll(".dash-card[data-open-tab]").forEach(card => {
-    const tab = card.dataset.openTab;
-    if (tab !== "tab-results" && tab !== "tab-attendance" && tab !== "tab-sbtet-info") {
-      card.remove();
-    }
-  });
-
-  // 2. Re-render bottom navigation to exactly: Home, Results, Attend, SBTET Info
-  const bottomNav = document.querySelector(".mobile-bottom-nav");
-  if (bottomNav) {
-    bottomNav.innerHTML = `
-      <button class="bottom-nav-item active" data-tab="tab-overview">
-        <i class="fa-solid fa-house"></i>
-        <span>Home</span>
-      </button>
-      <button class="bottom-nav-item" data-tab="tab-results">
-        <i class="fa-solid fa-chart-column"></i>
-        <span>Results</span>
-      </button>
-      <button class="bottom-nav-item" data-tab="tab-attendance">
-        <i class="fa-solid fa-calendar-check"></i>
-        <span>Attend</span>
-      </button>
-      <button class="bottom-nav-item" data-tab="tab-sbtet-info">
-        <i class="fa-solid fa-circle-info"></i>
-        <span>SBTET Info</span>
-      </button>
-    `;
-
-    bottomNav.querySelectorAll(".bottom-nav-item").forEach(btn => {
-      btn.addEventListener("click", () => switchTab(btn.dataset.tab));
-    });
-  }
-
-  // 3. Remove unwanted items from desktop sidebar
-  document.querySelectorAll(".sidebar-nav .nav-item").forEach(btn => {
-    const tab = btn.dataset.tab;
-    if (tab !== "tab-overview" && tab !== "tab-results" && tab !== "tab-attendance" && tab !== "tab-sbtet-info") {
-      btn.remove();
-    }
-  });
-}
-
-/* ==========================================================================
-   Navigation & Direct Redirection Routing
+   Navigation Router (Direct SBTET Connect Open for Results & Attendance)
    ========================================================================== */
 
 function switchTab(tabId) {
-  // Direct Action Redirection for Results and Attendance (No demo views)
+  // If Results or Attendance is clicked, open sbtetconnect.app immediately
   if (tabId === "tab-results" || tabId === "results") {
     openSBTETConnect("results");
     return;
@@ -555,12 +502,12 @@ function switchTab(tabId) {
     return;
   }
 
-  // Handle local views (Overview, SBTET Info, Profile)
+  // Handle local tabs: Home (tab-overview), SBTET Info (tab-sbtet-info), Profile (tab-profile)
   state.activeTab = tabId;
 
   document.querySelectorAll(".portal-tab").forEach(tab => tab.classList.remove("active"));
-  document.querySelectorAll(".nav-item").forEach(btn => btn.classList.remove("active"));
-  document.querySelectorAll(".bottom-nav-item").forEach(btn => btn.classList.remove("active"));
+  document.querySelectorAll(".sidebar-nav .nav-item").forEach(btn => btn.classList.remove("active"));
+  document.querySelectorAll(".mobile-bottom-nav .bottom-nav-item").forEach(btn => btn.classList.remove("active"));
 
   const targetTab = document.getElementById(tabId);
   if (targetTab) targetTab.classList.add("active");
@@ -574,7 +521,7 @@ function switchTab(tabId) {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-// Global click delegation for dynamically pruned cards
+// Global click delegation for dashboard cards
 document.addEventListener("click", (e) => {
   const card = e.target.closest(".dash-card[data-open-tab]");
   if (card) {
@@ -582,17 +529,22 @@ document.addEventListener("click", (e) => {
   }
 });
 
-// Sidebar listeners
+// Sidebar click listeners
 document.querySelectorAll(".sidebar-nav .nav-item").forEach(btn => {
   btn.addEventListener("click", () => switchTab(btn.dataset.tab));
 });
 
-// Header avatar pill opens profile settings
+// Mobile bottom navigation click listeners
+document.querySelectorAll(".mobile-bottom-nav .bottom-nav-item").forEach(btn => {
+  btn.addEventListener("click", () => switchTab(btn.dataset.tab));
+});
+
+// Header avatar pill opens student profile
 const headerProfileButton = document.getElementById("btn-header-profile");
 addClickListener(headerProfileButton, () => switchTab("tab-profile"));
 
 /* ==========================================================================
-   Edit Profile Form Handler
+   Profile Edit Form Handler
    ========================================================================== */
 
 if (DOM.formProfileEdit) {
